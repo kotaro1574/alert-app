@@ -9,6 +9,7 @@
 **Tech Stack:** Expo SDK 55 (`--template default@sdk-55`) / React Native New Architecture / TypeScript / NativeWind v4 / Expo Router / Zustand / expo-sqlite / Jest + jest-expo / better-sqlite3 (test only) / EAS Build
 
 **前提条件:**
+
 - macOS / Linux 環境
 - Node.js 20.x 以上
 - 課金済みの Apple Developer Program アカウント（実機 dev build 用）
@@ -77,6 +78,7 @@ alert-app/
 ### Task 1: Initialize Expo SDK 55 project with TypeScript
 
 **Files:**
+
 - Create: `package.json`, `tsconfig.json`, `app.json`, `app/_layout.tsx`, `app/index.tsx`, etc.
 
 - [ ] **Step 1: Run create-expo-app with SDK 55 default template**
@@ -126,6 +128,7 @@ git commit -m "feat(setup): scaffold Expo SDK 55 project"
 ### Task 2: Add ESLint + Prettier with TypeScript rules
 
 **Files:**
+
 - Create: `.eslintrc.js`, `.prettierrc.js`
 - Modify: `package.json`
 
@@ -139,11 +142,7 @@ npm install --save-dev eslint prettier eslint-config-expo @typescript-eslint/par
 
 ```js
 module.exports = {
-  extends: [
-    'expo',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
-  ],
+  extends: ['expo', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
   parser: '@typescript-eslint/parser',
   rules: {
     '@typescript-eslint/no-explicit-any': 'error',
@@ -203,6 +202,7 @@ git commit -m "chore(setup): configure ESLint and Prettier"
 ### Task 3: Enable React Native New Architecture
 
 **Files:**
+
 - Modify: `app.json`
 
 - [ ] **Step 1: Read current app.json**
@@ -255,6 +255,7 @@ git commit -m "chore(setup): enable New Architecture and set platform identifier
 ### Task 4: Set up NativeWind v4
 
 **Files:**
+
 - Create: `metro.config.js`, `tailwind.config.js`, `global.css`, `babel.config.js`
 - Modify: `app/_layout.tsx`, `package.json`
 
@@ -276,10 +277,7 @@ npx tailwindcss init
 ```js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    './app/**/*.{js,jsx,ts,tsx}',
-    './src/**/*.{js,jsx,ts,tsx}',
-  ],
+  content: ['./app/**/*.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
@@ -317,10 +315,7 @@ module.exports = withNativeWind(config, { input: './global.css' });
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: [
-      ['babel-preset-expo', { jsxImportSource: 'nativewind' }],
-      'nativewind/babel',
-    ],
+    presets: [['babel-preset-expo', { jsxImportSource: 'nativewind' }], 'nativewind/babel'],
   };
 };
 ```
@@ -374,6 +369,7 @@ git commit -m "feat(setup): configure NativeWind v4 with Tailwind preset"
 ### Task 5: Install Zustand and expo-sqlite
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: Install runtime dependencies**
@@ -403,6 +399,7 @@ git commit -m "chore(setup): add Zustand and expo-sqlite dependencies"
 ### Task 6: Install react-native-ios-alarmkit (Expo config plugin)
 
 **Files:**
+
 - Modify: `app.json`, `package.json`
 
 - [ ] **Step 1: Install AlarmKit wrapper and Nitro modules peer dep**
@@ -418,11 +415,7 @@ npx expo install react-native-ios-alarmkit react-native-nitro-modules
 ```json
 {
   "expo": {
-    "plugins": [
-      "expo-router",
-      "expo-sqlite",
-      "react-native-ios-alarmkit"
-    ]
+    "plugins": ["expo-router", "expo-sqlite", "react-native-ios-alarmkit"]
   }
 }
 ```
@@ -447,6 +440,7 @@ git commit -m "chore(setup): add react-native-ios-alarmkit config plugin"
 ### Task 7: Create directory structure for Domain / Repository / Scheduler
 
 **Files:**
+
 - Create: `src/domain/.gitkeep`, `src/repository/.gitkeep`, `src/scheduler/.gitkeep`, `tests/.gitkeep`
 
 - [ ] **Step 1: Create empty directories**
@@ -484,6 +478,7 @@ git commit -m "chore(setup): create directory structure and path aliases"
 ### Task 8: Configure EAS Build with development profile
 
 **Files:**
+
 - Create: `eas.json`
 
 - [ ] **Step 1: Install EAS CLI globally if not present**
@@ -638,6 +633,7 @@ git commit -m "chore(setup): Phase 0 complete – iOS and Android dev builds ver
 ### Task 11: Configure Jest with jest-expo preset
 
 **Files:**
+
 - Create: `jest.config.js`, `jest.setup.ts`
 - Modify: `package.json`
 
@@ -716,6 +712,7 @@ git commit -m "chore(setup): configure Jest with jest-expo preset"
 ### Task 12: Define Alarm domain types
 
 **Files:**
+
 - Create: `src/domain/types.ts`
 
 - [ ] **Step 1: Create `src/domain/types.ts`**
@@ -787,6 +784,7 @@ git commit -m "feat(domain): define Alarm and Weekday types"
 ### Task 13: Implement nextOccurrence (TDD)
 
 **Files:**
+
 - Create: `tests/domain/nextOccurrence.test.ts`, `src/domain/nextOccurrence.ts`
 
 - [ ] **Step 1: Write the failing tests**
@@ -981,6 +979,7 @@ git commit -m "feat(domain): implement nextOccurrence with weekday repeat suppor
 ### Task 14: Implement validation (TDD)
 
 **Files:**
+
 - Create: `tests/domain/validation.test.ts`, `src/domain/validation.ts`
 
 - [ ] **Step 1: Write the failing tests**
@@ -1089,9 +1088,7 @@ Expected: FAIL — モジュール解決失敗。
 import { ALL_SOUND_IDS, ALL_WEEKDAYS } from '@/domain/types';
 import type { AlarmInput } from '@/domain/types';
 
-export type ValidationResult =
-  | { ok: true }
-  | { ok: false; errors: string[] };
+export type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
 const isInteger = (n: number): boolean => Number.isInteger(n);
 
@@ -1151,6 +1148,7 @@ git commit -m "feat(domain): implement AlarmInput validation"
 ### Task 15: Define DbAdapter interface
 
 **Files:**
+
 - Create: `src/repository/db/DbAdapter.ts`
 
 - [ ] **Step 1: Define the adapter interface**
@@ -1186,6 +1184,7 @@ git commit -m "feat(repo): define DbAdapter interface"
 ### Task 16: Implement ExpoSqliteAdapter and BetterSqliteAdapter
 
 **Files:**
+
 - Create: `src/repository/db/ExpoSqliteAdapter.ts`, `src/repository/db/BetterSqliteAdapter.ts`
 
 - [ ] **Step 1: Implement ExpoSqliteAdapter (production runtime)**
@@ -1281,6 +1280,7 @@ git commit -m "feat(repo): implement ExpoSqlite and BetterSqlite adapters"
 ### Task 17: Define schema and migration
 
 **Files:**
+
 - Create: `src/repository/schema.ts`
 
 - [ ] **Step 1: Define schema SQL and migration runner**
@@ -1312,6 +1312,7 @@ export async function migrate(db: DbAdapter): Promise<void> {
 ```
 
 設計メモ：
+
 - `weekdays` は CSV 文字列で保存（例: `'mon,tue,wed'`、空配列は空文字列）。SQLite で配列型を扱うのが面倒なため、ここでは単純化を選ぶ
 - `enabled` / `snooze_enabled` は SQLite の真偽値慣習に従い `0` / `1` 整数で保存
 - `created_at` / `updated_at` は UNIX ミリ秒の整数
@@ -1336,6 +1337,7 @@ git commit -m "feat(repo): define alarms table schema"
 ### Task 18: Implement Alarm <-> row mapper (TDD)
 
 **Files:**
+
 - Create: `tests/repository/alarmMapper.test.ts`, `src/repository/alarmMapper.ts`
 
 - [ ] **Step 1: Write failing tests**
@@ -1492,8 +1494,7 @@ export function alarmToRow(alarm: Alarm): AlarmRow {
 }
 
 export function rowToAlarm(row: AlarmRow): Alarm {
-  const weekdays =
-    row.weekdays === '' ? [] : (row.weekdays.split(',') as Weekday[]);
+  const weekdays = row.weekdays === '' ? [] : (row.weekdays.split(',') as Weekday[]);
   return {
     id: row.id,
     label: row.label,
@@ -1529,6 +1530,7 @@ git commit -m "feat(repo): implement Alarm <-> row mapper"
 ### Task 19: Implement AlarmRepository CRUD against real SQLite (TDD)
 
 **Files:**
+
 - Create: `tests/repository/alarmRepository.test.ts`, `src/repository/alarmRepository.ts`
 
 - [ ] **Step 1: Write failing tests using BetterSqliteAdapter**
@@ -1725,6 +1727,7 @@ git commit -m "feat(repo): implement AlarmRepository CRUD with real SQLite tests
 ### Task 20: Define AlarmScheduler interface (contract for Plan 2)
 
 **Files:**
+
 - Create: `src/scheduler/AlarmScheduler.ts`
 
 - [ ] **Step 1: Define the scheduler interface**
@@ -1753,6 +1756,7 @@ export interface AlarmScheduler {
 ```
 
 設計メモ：
+
 - Plan 2 で iOS 用と Android 用の実装を作る
 - `listScheduled` は起動時 sync で「Native 層に何が残っているか」を確認するのに使う
 - `isAvailable` は iOS 25 以下や、Android で必要権限が無い場合に false を返す
