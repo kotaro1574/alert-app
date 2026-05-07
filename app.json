@@ -7,8 +7,15 @@
     "icon": "./assets/images/icon.png",
     "scheme": "alertapp",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.example.alertapp",
+      "supportsTablet": false,
+      "deploymentTarget": "26.0",
+      "infoPlist": {
+        "NSAlarmKitUsageDescription": "アラーム時刻に確実に通知するため、AlarmKit へのアクセスが必要です。"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +24,10 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.example.alertapp",
+      "minSdkVersion": 26,
+      "permissions": []
     },
     "web": {
       "output": "static",
