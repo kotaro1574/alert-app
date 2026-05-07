@@ -13,9 +13,4 @@ module.exports = defineConfig([
       '@typescript-eslint/consistent-type-imports': 'warn',
     },
   },
-  {
-    rules: {
-      'prettier/prettier': 'error',
-    },
-  },
 ]);
