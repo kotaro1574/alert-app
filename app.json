@@ -12,7 +12,6 @@
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.example.alertapp",
       "supportsTablet": false,
-      "deploymentTarget": "26.0",
       "infoPlist": {
         "NSAlarmKitUsageDescription": "アラーム時刻に確実に通知するため、AlarmKit へのアクセスが必要です。"
       }
@@ -26,7 +25,6 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.example.alertapp",
-      "minSdkVersion": 26,
       "permissions": []
     },
     "web": {
@@ -34,6 +32,17 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "26.0"
+          },
+          "android": {
+            "minSdkVersion": 26
+          }
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
