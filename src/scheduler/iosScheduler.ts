@@ -13,6 +13,21 @@ const WEEKDAY_MAP: Record<Weekday, AlarmKitWeekday> = {
   sun: 'sunday',
 };
 
+type AlarmKitState = 'scheduled' | 'countdown' | 'paused' | 'alerting';
+
+function mapAlarmKitState(state: AlarmKitState): ScheduledAlarmInfo['state'] {
+  switch (state) {
+    case 'scheduled':
+      return 'scheduled';
+    case 'alerting':
+      return 'alerting';
+    case 'countdown':
+      return 'snoozed';
+    default:
+      return 'unknown';
+  }
+}
+
 export class IosScheduler implements AlarmScheduler {
   async isAvailable(): Promise<boolean> {
     return AlarmKit.isSupported;
@@ -35,11 +50,17 @@ export class IosScheduler implements AlarmScheduler {
     });
   }
 
-  async cancel(_id: string): Promise<void> {
-    throw new Error('Not implemented');
+  async cancel(id: string): Promise<void> {
+    if (!AlarmKit.isSupported) return;
+    await AlarmKit.cancel(id);
   }
 
   async listScheduled(): Promise<ScheduledAlarmInfo[]> {
-    throw new Error('Not implemented');
+    if (!AlarmKit.isSupported) return [];
+    const alarms = await AlarmKit.getAlarms();
+    return alarms.map((a) => ({
+      id: a.id,
+      state: mapAlarmKitState(a.state as AlarmKitState),
+    }));
   }
 }

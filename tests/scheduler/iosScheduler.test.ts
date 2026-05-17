@@ -117,4 +117,63 @@ describe('IosScheduler', () => {
       expect(mockAlarmKit.scheduleAlarm).not.toHaveBeenCalled();
     });
   });
+
+  describe('cancel', () => {
+    it('calls AlarmKit.cancel with the given id', async () => {
+      Object.defineProperty(mockAlarmKit, 'isSupported', { value: true, configurable: true });
+      (mockAlarmKit.cancel as jest.Mock).mockResolvedValue(true);
+      await scheduler.cancel('550e8400-e29b-41d4-a716-446655440000');
+      expect(mockAlarmKit.cancel).toHaveBeenCalledWith('550e8400-e29b-41d4-a716-446655440000');
+    });
+
+    it('no-ops when not supported', async () => {
+      Object.defineProperty(mockAlarmKit, 'isSupported', { value: false, configurable: true });
+      await scheduler.cancel('550e8400-e29b-41d4-a716-446655440000');
+      expect(mockAlarmKit.cancel).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('listScheduled – AlarmKit state mapping', () => {
+    it('maps scheduled → scheduled', async () => {
+      Object.defineProperty(mockAlarmKit, 'isSupported', { value: true, configurable: true });
+      (mockAlarmKit.getAlarms as jest.Mock).mockResolvedValue([
+        { id: 'id-1', state: 'scheduled', countdownDuration: null, schedule: null },
+      ]);
+      const result = await scheduler.listScheduled();
+      expect(result).toEqual([{ id: 'id-1', state: 'scheduled' }]);
+    });
+
+    it('maps alerting → alerting', async () => {
+      Object.defineProperty(mockAlarmKit, 'isSupported', { value: true, configurable: true });
+      (mockAlarmKit.getAlarms as jest.Mock).mockResolvedValue([
+        { id: 'id-2', state: 'alerting', countdownDuration: null, schedule: null },
+      ]);
+      const result = await scheduler.listScheduled();
+      expect(result).toEqual([{ id: 'id-2', state: 'alerting' }]);
+    });
+
+    it('maps countdown → snoozed', async () => {
+      Object.defineProperty(mockAlarmKit, 'isSupported', { value: true, configurable: true });
+      (mockAlarmKit.getAlarms as jest.Mock).mockResolvedValue([
+        { id: 'id-3', state: 'countdown', countdownDuration: null, schedule: null },
+      ]);
+      const result = await scheduler.listScheduled();
+      expect(result).toEqual([{ id: 'id-3', state: 'snoozed' }]);
+    });
+
+    it('maps paused → unknown', async () => {
+      Object.defineProperty(mockAlarmKit, 'isSupported', { value: true, configurable: true });
+      (mockAlarmKit.getAlarms as jest.Mock).mockResolvedValue([
+        { id: 'id-4', state: 'paused', countdownDuration: null, schedule: null },
+      ]);
+      const result = await scheduler.listScheduled();
+      expect(result).toEqual([{ id: 'id-4', state: 'unknown' }]);
+    });
+
+    it('returns empty array when not supported', async () => {
+      Object.defineProperty(mockAlarmKit, 'isSupported', { value: false, configurable: true });
+      const result = await scheduler.listScheduled();
+      expect(result).toEqual([]);
+    });
+  });
 });
