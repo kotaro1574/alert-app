@@ -1,4 +1,3 @@
-import { createScheduler } from '@/services/createScheduler';
 import { IosScheduler } from '@/scheduler/iosScheduler';
 
 jest.mock('react-native-ios-alarmkit', () => ({
