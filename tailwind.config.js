@@ -6,6 +6,10 @@ module.exports = {
     extend: {
       colors: {
         accent: '#FF9500',
+        surface: '#1C1C1E',
+        secondary: '#8E8E93',
+        border: '#38383A',
+        danger: '#FF3B30',
       },
     },
   },
