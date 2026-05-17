@@ -1,4 +1,5 @@
 import { IosScheduler } from '@/scheduler/iosScheduler';
+import type { Alarm } from '@/domain/types';
 
 jest.mock('react-native-ios-alarmkit', () => ({
   __esModule: true,
@@ -57,6 +58,63 @@ describe('IosScheduler', () => {
       Object.defineProperty(mockAlarmKit, 'isSupported', { value: false, configurable: true });
       const result = await scheduler.requestAuthorization();
       expect(result).toBe('notDetermined');
+    });
+  });
+
+  describe('schedule – weekday translation', () => {
+    const baseAlarm: Alarm = {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      label: 'Wake Up',
+      hour: 7,
+      minute: 30,
+      weekdays: ['mon', 'wed', 'fri'],
+      enabled: true,
+      snoozeEnabled: true,
+      soundId: 'default',
+      createdAt: 1000,
+      updatedAt: 1000,
+    };
+
+    beforeEach(() => {
+      Object.defineProperty(mockAlarmKit, 'isSupported', { value: true, configurable: true });
+      (mockAlarmKit.scheduleAlarm as jest.Mock).mockResolvedValue(undefined);
+    });
+
+    it('translates mon/wed/fri to monday/wednesday/friday', async () => {
+      await scheduler.schedule(baseAlarm);
+      expect(mockAlarmKit.scheduleAlarm).toHaveBeenCalledWith(
+        baseAlarm.id,
+        expect.objectContaining({
+          weekdays: ['monday', 'wednesday', 'friday'],
+        }),
+      );
+    });
+
+    it('passes hour, minute, title, snoozeEnabled', async () => {
+      await scheduler.schedule(baseAlarm);
+      expect(mockAlarmKit.scheduleAlarm).toHaveBeenCalledWith(
+        baseAlarm.id,
+        expect.objectContaining({
+          hour: 7,
+          minute: 30,
+          title: 'Wake Up',
+          snoozeEnabled: true,
+        }),
+      );
+    });
+
+    it('passes empty weekdays array for one-shot alarm', async () => {
+      await scheduler.schedule({ ...baseAlarm, weekdays: [] });
+      expect(mockAlarmKit.scheduleAlarm).toHaveBeenCalledWith(
+        baseAlarm.id,
+        expect.objectContaining({ weekdays: [] }),
+      );
+    });
+
+    it('does not call scheduleAlarm when not supported', async () => {
+      Object.defineProperty(mockAlarmKit, 'isSupported', { value: false, configurable: true });
+      await scheduler.schedule(baseAlarm);
+      expect(mockAlarmKit.scheduleAlarm).not.toHaveBeenCalled();
     });
   });
 });
