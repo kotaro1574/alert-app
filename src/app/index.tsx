@@ -12,7 +12,7 @@ export default function ListScreen() {
         <Text className="text-2xl font-semibold text-white">アラーム</Text>
         <Pressable
           accessibilityLabel="アラームを追加"
-          onPress={() => router.push('/alarm/new' as any)}
+          onPress={() => router.push('/alarm/new')}
           className="h-8 w-8 items-center justify-center rounded-full bg-accent"
         >
           <Text className="text-xl font-bold text-black">+</Text>
