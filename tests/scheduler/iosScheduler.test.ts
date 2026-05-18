@@ -1,6 +1,8 @@
 import { IosScheduler } from '@/scheduler/iosScheduler';
 import type { Alarm } from '@/domain/types';
 
+import AlarmKit from 'react-native-ios-alarmkit';
+
 jest.mock('react-native-ios-alarmkit', () => ({
   __esModule: true,
   default: {
@@ -12,8 +14,6 @@ jest.mock('react-native-ios-alarmkit', () => ({
     getAlarms: jest.fn(),
   },
 }));
-
-import AlarmKit from 'react-native-ios-alarmkit';
 
 const mockAlarmKit = AlarmKit as jest.Mocked<typeof AlarmKit>;
 

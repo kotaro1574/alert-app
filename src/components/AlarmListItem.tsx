@@ -30,15 +30,15 @@ export function AlarmListItem({ alarm, onToggle, onPress }: Props) {
     <Pressable
       testID="alarm-list-item"
       onPress={onPress}
-      className="border-border flex-row items-center justify-between border-b px-4 py-3"
+      className="flex-row items-center justify-between border-b border-border px-4 py-3"
     >
       <View className="flex-1">
         <Text className="text-4xl font-thin text-white">
           {formatTime(alarm.hour, alarm.minute)}
         </Text>
-        <Text className="text-secondary mt-0.5 text-sm">{alarm.label}</Text>
+        <Text className="mt-0.5 text-sm text-secondary">{alarm.label}</Text>
         {weekdayText.length > 0 && (
-          <Text className="text-secondary mt-0.5 text-xs">{weekdayText}</Text>
+          <Text className="mt-0.5 text-xs text-secondary">{weekdayText}</Text>
         )}
       </View>
       <Switch

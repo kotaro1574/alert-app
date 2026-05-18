@@ -37,7 +37,7 @@ export function WeekdayToggle({ value, onChange }: Props) {
             role="button"
             onPress={() => toggle(day)}
             className={`h-10 w-10 items-center justify-center rounded-full ${
-              active ? 'bg-accent' : 'bg-surface border-border border'
+              active ? 'bg-accent' : 'border border-border bg-surface'
             }`}
           >
             <Text className={`text-sm font-semibold ${active ? 'text-black' : 'text-white'}`}>
