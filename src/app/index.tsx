@@ -25,7 +25,7 @@ export default function ListScreen() {
         renderItem={() => null}
         ListEmptyComponent={
           <View className="flex-1 items-center justify-center pt-32">
-            <Text className="text-secondary text-base">アラームがありません</Text>
+            <Text className="text-base text-secondary">アラームがありません</Text>
           </View>
         }
       />
