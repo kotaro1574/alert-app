@@ -3,19 +3,29 @@ import { FlatList, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AlarmListItem } from '@/components/AlarmListItem';
+import { createScheduler } from '@/services/createScheduler';
 import { getStore } from '@/stores/appStore';
 import type { Alarm } from '@/domain/types';
 
 export default function ListScreen() {
   const router = useRouter();
   const [alarms, setAlarms] = useState<readonly Alarm[]>([]);
+  const [permissionDenied, setPermissionDenied] = useState(false);
 
   useEffect(() => {
     let unsub: (() => void) | null = null;
-    getStore().then((store) => {
+
+    async function setup() {
+      const scheduler = createScheduler();
+      const authStatus = await scheduler.requestAuthorization().catch(() => 'denied' as const);
+      setPermissionDenied(authStatus === 'denied');
+
+      const store = await getStore();
       setAlarms(store.getState().alarms);
       unsub = store.subscribe((state) => setAlarms(state.alarms));
-    });
+    }
+
+    setup();
     return () => {
       unsub?.();
     };
@@ -24,6 +34,12 @@ export default function ListScreen() {
   const handleToggle = async (id: string, enabled: boolean) => {
     const store = await getStore();
     await store.getState().toggleAlarm(id, enabled);
+  };
+
+  const handleRetryPermission = async () => {
+    const scheduler = createScheduler();
+    const status = await scheduler.requestAuthorization().catch(() => 'denied' as const);
+    setPermissionDenied(status === 'denied');
   };
 
   return (
@@ -38,6 +54,17 @@ export default function ListScreen() {
           <Text className="text-xl font-bold text-black">+</Text>
         </Pressable>
       </View>
+
+      {permissionDenied && (
+        <Pressable
+          onPress={handleRetryPermission}
+          className="mx-4 my-2 rounded-xl bg-danger px-4 py-3"
+        >
+          <Text className="text-center text-sm text-white">
+            アラームの権限が必要です。タップして再許可
+          </Text>
+        </Pressable>
+      )}
 
       <FlatList
         data={[...alarms]}
