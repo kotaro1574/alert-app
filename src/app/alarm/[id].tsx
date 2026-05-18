@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WeekdayToggle } from '@/components/WeekdayToggle';
+import { getStore } from '@/stores/appStore';
 import { colors } from '@/theme/colors';
 import type { Weekday } from '@/domain/types';
 
@@ -23,13 +24,40 @@ export default function EditScreen() {
   const [weekdays, setWeekdays] = useState<readonly Weekday[]>([]);
   const [snoozeEnabled, setSnoozeEnabled] = useState(true);
 
-  const handleSave = () => {
-    console.log('save', { isNew, id, date, label, weekdays, snoozeEnabled });
+  useEffect(() => {
+    if (isNew) return;
+    getStore().then(async (store) => {
+      const alarm = store.getState().alarms.find((a) => a.id === id);
+      if (!alarm) return;
+      setDate(buildInitialDate(alarm.hour, alarm.minute));
+      setLabel(alarm.label);
+      setWeekdays(alarm.weekdays);
+      setSnoozeEnabled(alarm.snoozeEnabled);
+    });
+  }, [id, isNew]);
+
+  const handleSave = async () => {
+    const store = await getStore();
+    const input = {
+      label,
+      hour: date.getHours(),
+      minute: date.getMinutes(),
+      weekdays,
+      enabled: true,
+      snoozeEnabled,
+      soundId: 'default' as const,
+    };
+    if (isNew) {
+      await store.getState().addAlarm(input);
+    } else {
+      await store.getState().updateAlarm(id, input);
+    }
     router.back();
   };
 
-  const handleDelete = () => {
-    console.log('delete', id);
+  const handleDelete = async () => {
+    const store = await getStore();
+    await store.getState().deleteAlarm(id);
     router.back();
   };
 
