@@ -116,6 +116,14 @@ describe('IosScheduler', () => {
       await scheduler.schedule(baseAlarm);
       expect(mockAlarmKit.scheduleAlarm).not.toHaveBeenCalled();
     });
+
+    it('passes snoozeDuration of 540 seconds (9 minutes) so AlarmKit snooze button works', async () => {
+      await scheduler.schedule(baseAlarm);
+      expect(mockAlarmKit.scheduleAlarm).toHaveBeenCalledWith(
+        baseAlarm.id,
+        expect.objectContaining({ snoozeDuration: 540 }),
+      );
+    });
   });
 
   describe('cancel', () => {

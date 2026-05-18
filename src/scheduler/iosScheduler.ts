@@ -13,6 +13,8 @@ const WEEKDAY_MAP: Record<Weekday, AlarmKitWeekday> = {
   sun: 'sunday',
 };
 
+const SNOOZE_DURATION_SECONDS = 9 * 60;
+
 type AlarmKitState = 'scheduled' | 'countdown' | 'paused' | 'alerting';
 
 function mapAlarmKitState(state: AlarmKitState): ScheduledAlarmInfo['state'] {
@@ -47,6 +49,7 @@ export class IosScheduler implements AlarmScheduler {
       weekdays: alarm.weekdays.map((w) => WEEKDAY_MAP[w]),
       title: alarm.label || 'アラーム',
       snoozeEnabled: alarm.snoozeEnabled,
+      snoozeDuration: SNOOZE_DURATION_SECONDS,
     });
   }
 
