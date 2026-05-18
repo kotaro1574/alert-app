@@ -1,3 +1,4 @@
+import * as Crypto from 'expo-crypto';
 import { createStore } from 'zustand/vanilla';
 import type { AlarmRepository } from '@/repository/alarmRepository';
 import type { AlarmScheduler } from '@/scheduler/AlarmScheduler';
@@ -16,7 +17,7 @@ interface AlarmState {
 function buildAlarm(input: AlarmInput): Alarm {
   const now = Date.now();
   return {
-    id: crypto.randomUUID(),
+    id: Crypto.randomUUID(),
     ...input,
     createdAt: now,
     updatedAt: now,

@@ -1,1 +1,4 @@
-// Reserved for future setup (e.g., global mocks). Currently empty but required.
+jest.mock('expo-crypto', () => ({
+  __esModule: true,
+  randomUUID: () => require('crypto').randomUUID(),
+}));
