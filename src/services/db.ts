@@ -2,12 +2,14 @@ import { ExpoSqliteAdapter } from '@/repository/db/ExpoSqliteAdapter';
 import { migrate } from '@/repository/schema';
 import { AlarmRepository } from '@/repository/alarmRepository';
 
-let repository: AlarmRepository | null = null;
+let repositoryPromise: Promise<AlarmRepository> | null = null;
 
 export async function getRepository(): Promise<AlarmRepository> {
-  if (repository !== null) return repository;
-  const adapter = await ExpoSqliteAdapter.open('alarms.db');
-  await migrate(adapter);
-  repository = new AlarmRepository(adapter);
-  return repository;
+  if (repositoryPromise !== null) return repositoryPromise;
+  repositoryPromise = (async () => {
+    const adapter = await ExpoSqliteAdapter.open('alarms.db');
+    await migrate(adapter);
+    return new AlarmRepository(adapter);
+  })();
+  return repositoryPromise;
 }
