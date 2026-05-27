@@ -1,5 +1,4 @@
 import { Platform } from 'react-native';
-import { IosScheduler } from '@/scheduler/iosScheduler';
 import type { AlarmScheduler, ScheduledAlarmInfo } from '@/scheduler/AlarmScheduler';
 import type { Alarm } from '@/domain/types';
 
@@ -23,6 +22,10 @@ class NoopScheduler implements AlarmScheduler {
 
 export function createScheduler(): AlarmScheduler {
   if (Platform.OS === 'ios') {
+    /* eslint-disable @typescript-eslint/no-require-imports */
+    const { IosScheduler } =
+      require('@/scheduler/iosScheduler') as typeof import('@/scheduler/iosScheduler');
+    /* eslint-enable @typescript-eslint/no-require-imports */
     return new IosScheduler();
   }
   return new NoopScheduler();
