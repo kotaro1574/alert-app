@@ -7,5 +7,9 @@
         <action android:name="expo.modules.alarmandroid.FIRE" />
       </intent-filter>
     </receiver>
+    <service
+      android:name="expo.modules.alarmandroid.AlarmService"
+      android:exported="false"
+      android:foregroundServiceType="mediaPlayback" />
   </application>
 </manifest>
