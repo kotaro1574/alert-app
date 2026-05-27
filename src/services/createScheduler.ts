@@ -22,10 +22,10 @@ class NoopScheduler implements AlarmScheduler {
 
 export function createScheduler(): AlarmScheduler {
   if (Platform.OS === 'ios') {
-    /* eslint-disable @typescript-eslint/no-require-imports */
-    const { IosScheduler } =
-      require('@/scheduler/iosScheduler') as typeof import('@/scheduler/iosScheduler');
-    /* eslint-enable @typescript-eslint/no-require-imports */
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { IosScheduler } = require('@/scheduler/iosScheduler') as {
+      IosScheduler: new () => AlarmScheduler;
+    };
     return new IosScheduler();
   }
   return new NoopScheduler();
