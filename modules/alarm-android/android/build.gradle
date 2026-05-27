@@ -1,7 +1,18 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'org.jetbrains.kotlin:kotlin-serialization:2.0.21'
+  }
+}
+
 plugins {
   id 'com.android.library'
   id 'expo-module-gradle-plugin'
 }
+
+apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
 
 group = 'expo.modules.alarmandroid'
 version = '0.1.0'
@@ -15,4 +26,8 @@ android {
   lintOptions {
     abortOnError false
   }
+}
+
+dependencies {
+  implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3'
 }
