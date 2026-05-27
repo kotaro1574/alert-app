@@ -1,0 +1,9 @@
+{
+  "platforms": ["android", "apple"],
+  "apple": {
+    "modules": ["AlarmAndroidModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.alarmandroid.AlarmAndroidModule"]
+  }
+}

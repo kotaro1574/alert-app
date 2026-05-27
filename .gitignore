@@ -53,3 +53,8 @@ app-example
 # tooling
 .serena/
 .claude/settings.local.json
+
+# local Expo module build artifacts
+modules/alarm-android/build/
+modules/alarm-android/android/build/
+modules/alarm-android/.cxx/
