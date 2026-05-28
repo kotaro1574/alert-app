@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { Platform, Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native';
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WeekdayToggle } from '@/components/WeekdayToggle';
@@ -77,14 +77,35 @@ export default function EditScreen() {
 
       <ScrollView className="flex-1">
         <View className="items-center py-6">
-          <DateTimePicker
-            value={date}
-            mode="time"
-            display="spinner"
-            onChange={(_event, selected) => selected && setDate(selected)}
-            textColor={colors.text}
-            style={{ height: 200 }}
-          />
+          {Platform.OS === 'ios' ? (
+            <DateTimePicker
+              value={date}
+              mode="time"
+              display="spinner"
+              onChange={(_event, selected) => selected && setDate(selected)}
+              textColor={colors.text}
+              style={{ height: 200 }}
+            />
+          ) : (
+            <Pressable
+              onPress={() =>
+                DateTimePickerAndroid.open({
+                  value: date,
+                  mode: 'time',
+                  is24Hour: true,
+                  onChange: (_event, selected) => {
+                    if (selected) setDate(selected);
+                  },
+                })
+              }
+              className="items-center justify-center py-8"
+            >
+              <Text className="text-7xl font-light text-white">
+                {`${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`}
+              </Text>
+              <Text className="mt-2 text-sm text-secondary">タップして時刻を変更</Text>
+            </Pressable>
+          )}
         </View>
 
         <View className="mx-4 mb-4 rounded-xl bg-surface px-4 py-3">
