@@ -15,11 +15,15 @@ import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.util.Log
 
 class AlarmService : Service() {
   private var mediaPlayer: MediaPlayer? = null
   private var wakeLock: PowerManager.WakeLock? = null
+  private var vibrator: Vibrator? = null
   private var currentAlarmId: String? = null
 
   override fun onBind(intent: Intent?): IBinder? = null
@@ -64,10 +68,12 @@ class AlarmService : Service() {
     }
     acquireWakeLock()
     playSound()
+    startVibration()
   }
 
   private fun stopAlarm() {
     releaseMediaPlayer()
+    stopVibration()
     releaseWakeLock()
     stopForeground(STOP_FOREGROUND_REMOVE)
     stopSelf()
@@ -106,6 +112,29 @@ class AlarmService : Service() {
       release()
     }
     mediaPlayer = null
+  }
+
+  private fun startVibration() {
+    vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+      val vm = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+      vm.defaultVibrator
+    } else {
+      @Suppress("DEPRECATION")
+      getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    }
+    val pattern = longArrayOf(0, 1000, 1000)
+    val effect = VibrationEffect.createWaveform(pattern, 0)
+    val audioAttrs = AudioAttributes.Builder()
+      .setUsage(AudioAttributes.USAGE_ALARM)
+      .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+      .build()
+    runCatching { vibrator?.vibrate(effect, audioAttrs) }
+      .onFailure { Log.w("AlarmService", "Failed to start vibration", it) }
+  }
+
+  private fun stopVibration() {
+    runCatching { vibrator?.cancel() }
+    vibrator = null
   }
 
   private fun acquireWakeLock() {
@@ -161,6 +190,7 @@ class AlarmService : Service() {
 
   override fun onDestroy() {
     releaseMediaPlayer()
+    stopVibration()
     releaseWakeLock()
     super.onDestroy()
   }
