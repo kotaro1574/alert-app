@@ -25,7 +25,6 @@ interface AlarmAndroidNativeModule extends NativeModule<AlarmAndroidEvents> {
   }>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const WEEKDAY_TO_ISO: Record<Weekday, number> = {
   mon: 1,
   tue: 2,
@@ -53,8 +52,15 @@ export class AndroidScheduler implements AlarmScheduler {
     return 'denied';
   }
 
-  async schedule(_alarm: Alarm): Promise<void> {
-    throw new Error('not implemented yet');
+  async schedule(alarm: Alarm): Promise<void> {
+    await getNative().schedule(
+      alarm.id,
+      alarm.hour,
+      alarm.minute,
+      alarm.weekdays.map((w) => WEEKDAY_TO_ISO[w]),
+      alarm.label || 'アラーム',
+      alarm.snoozeEnabled,
+    );
   }
 
   async cancel(_id: string): Promise<void> {

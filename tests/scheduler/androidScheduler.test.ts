@@ -61,4 +61,64 @@ describe('AndroidScheduler', () => {
       expect(await scheduler.requestAuthorization()).toBe('denied');
     });
   });
+
+  describe('schedule – weekday translation', () => {
+    const baseAlarm = {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      label: 'Wake Up',
+      hour: 7,
+      minute: 30,
+      weekdays: ['mon', 'wed', 'fri'] as const,
+      enabled: true,
+      snoozeEnabled: true,
+      soundId: 'default' as const,
+      createdAt: 1000,
+      updatedAt: 1000,
+    };
+
+    beforeEach(() => {
+      mockNative.schedule.mockResolvedValue(undefined);
+    });
+
+    it('translates mon/wed/fri to 1/3/5', async () => {
+      await scheduler.schedule(baseAlarm);
+      expect(mockNative.schedule).toHaveBeenCalledWith(
+        baseAlarm.id,
+        7,
+        30,
+        [1, 3, 5],
+        'Wake Up',
+        true,
+      );
+    });
+
+    it('passes empty array for one-shot alarm', async () => {
+      await scheduler.schedule({ ...baseAlarm, weekdays: [] });
+      expect(mockNative.schedule).toHaveBeenCalledWith(baseAlarm.id, 7, 30, [], 'Wake Up', true);
+    });
+
+    it('uses default label when label is empty', async () => {
+      await scheduler.schedule({ ...baseAlarm, label: '' });
+      expect(mockNative.schedule).toHaveBeenCalledWith(
+        baseAlarm.id,
+        7,
+        30,
+        [1, 3, 5],
+        'アラーム',
+        true,
+      );
+    });
+
+    it('passes snoozeEnabled false through', async () => {
+      await scheduler.schedule({ ...baseAlarm, snoozeEnabled: false });
+      expect(mockNative.schedule).toHaveBeenCalledWith(
+        baseAlarm.id,
+        7,
+        30,
+        [1, 3, 5],
+        'Wake Up',
+        false,
+      );
+    });
+  });
 });
