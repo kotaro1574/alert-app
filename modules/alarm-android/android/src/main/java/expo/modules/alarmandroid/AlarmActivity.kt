@@ -1,8 +1,6 @@
 package expo.modules.alarmandroid
 
 import android.app.Activity
-import android.app.KeyguardManager
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -17,14 +15,11 @@ class AlarmActivity : Activity() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
       setShowWhenLocked(true)
       setTurnScreenOn(true)
-      val km = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-      km.requestDismissKeyguard(this, null)
     } else {
       @Suppress("DEPRECATION")
       window.addFlags(
         WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-          WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-          WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+          WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
       )
     }
 
