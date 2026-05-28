@@ -21,10 +21,10 @@ import android.os.VibratorManager
 import android.util.Log
 
 class AlarmService : Service() {
-  private var mediaPlayer: MediaPlayer? = null
+  private val mediaPlayers = mutableMapOf<String, MediaPlayer>()
+  private val activeAlarmIds = mutableSetOf<String>()
   private var wakeLock: PowerManager.WakeLock? = null
   private var vibrator: Vibrator? = null
-  private var currentAlarmId: String? = null
 
   override fun onBind(intent: Intent?): IBinder? = null
 
@@ -55,39 +55,50 @@ class AlarmService : Service() {
   }
 
   private fun startAlarm(id: String) {
-    currentAlarmId = id
+    if (activeAlarmIds.contains(id)) return
+    val isFirst = activeAlarmIds.isEmpty()
+    activeAlarmIds.add(id)
+
     val notif = buildNotification(id)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-      startForeground(
-        Constants.ONGOING_NOTIFICATION_ID,
-        notif,
-        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-      )
+    if (isFirst) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        startForeground(
+          Constants.ONGOING_NOTIFICATION_ID,
+          notif,
+          ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+        )
+      } else {
+        startForeground(Constants.ONGOING_NOTIFICATION_ID, notif)
+      }
+      acquireWakeLock()
+      startVibration()
     } else {
-      startForeground(Constants.ONGOING_NOTIFICATION_ID, notif)
+      val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+      nm.notify(Constants.ONGOING_NOTIFICATION_ID, notif)
     }
-    acquireWakeLock()
-    playSound()
-    startVibration()
+    playSound(id)
   }
 
   private fun stopAlarm() {
-    releaseMediaPlayer()
+    releaseAllMediaPlayers()
+    activeAlarmIds.clear()
     stopVibration()
     releaseWakeLock()
     stopForeground(STOP_FOREGROUND_REMOVE)
     stopSelf()
   }
 
-  private fun snoozeAlarm(id: String) {
+  private fun snoozeAlarm(triggeringId: String) {
     val nextTrigger = System.currentTimeMillis() + Constants.SNOOZE_DURATION_MS
-    AlarmScheduler(applicationContext).scheduleOneShot(id, nextTrigger)
+    val scheduler = AlarmScheduler(applicationContext)
+    val toSnooze = if (activeAlarmIds.isEmpty()) setOf(triggeringId) else activeAlarmIds.toSet()
+    toSnooze.forEach { scheduler.scheduleOneShot(it, nextTrigger) }
     stopAlarm()
   }
 
-  private fun playSound() {
+  private fun playSound(id: String) {
     val soundUri: Uri = Uri.parse("android.resource://$packageName/raw/alarm")
-    mediaPlayer = MediaPlayer().apply {
+    val mp = MediaPlayer().apply {
       try {
         setDataSource(applicationContext, soundUri)
       } catch (e: Exception) {
@@ -104,14 +115,15 @@ class AlarmService : Service() {
       setOnPreparedListener { start() }
       prepareAsync()
     }
+    mediaPlayers[id] = mp
   }
 
-  private fun releaseMediaPlayer() {
-    mediaPlayer?.apply {
-      try { if (isPlaying) stop() } catch (_: Exception) {}
-      release()
+  private fun releaseAllMediaPlayers() {
+    mediaPlayers.values.forEach { mp ->
+      try { if (mp.isPlaying) mp.stop() } catch (_: Exception) {}
+      mp.release()
     }
-    mediaPlayer = null
+    mediaPlayers.clear()
   }
 
   private fun startVibration() {
@@ -189,7 +201,8 @@ class AlarmService : Service() {
   }
 
   override fun onDestroy() {
-    releaseMediaPlayer()
+    releaseAllMediaPlayers()
+    activeAlarmIds.clear()
     stopVibration()
     releaseWakeLock()
     super.onDestroy()
