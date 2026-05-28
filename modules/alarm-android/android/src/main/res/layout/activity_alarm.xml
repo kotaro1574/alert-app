@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  android:background="#000000"
+  android:gravity="center"
+  android:padding="32dp">
+
+  <TextView
+    android:id="@+id/labelText"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="アラーム"
+    android:textColor="#FFFFFF"
+    android:textSize="32sp"
+    android:layout_marginBottom="64dp" />
+
+  <Button
+    android:id="@+id/stopButton"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:text="停止"
+    android:textSize="24sp"
+    android:textColor="#000000"
+    android:backgroundTint="#FFFFFF"
+    android:layout_marginBottom="16dp" />
+
+  <Button
+    android:id="@+id/snoozeButton"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:text="スヌーズ"
+    android:textSize="24sp"
+    android:textColor="#FFFFFF"
+    android:backgroundTint="#444444" />
+</LinearLayout>
