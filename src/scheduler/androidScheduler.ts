@@ -1,0 +1,67 @@
+import { requireNativeModule } from 'expo';
+import type { NativeModule } from 'expo';
+import type { AlarmScheduler, ScheduledAlarmInfo } from '@/scheduler/AlarmScheduler';
+import type { Alarm, Weekday } from '@/domain/types';
+
+type AlarmAndroidEvents = {
+  onAlarmStateChanged(event: { id: string; state: 'fired' | 'stopped' | 'snoozed' }): void;
+};
+
+interface AlarmAndroidNativeModule extends NativeModule<AlarmAndroidEvents> {
+  schedule(
+    id: string,
+    hour: number,
+    minute: number,
+    weekdays: number[],
+    label: string,
+    snoozeEnabled: boolean,
+  ): Promise<void>;
+  cancel(id: string): Promise<void>;
+  list(): Promise<{ id: string; nextTriggerAt: number }[]>;
+  requestPermissions(): Promise<{
+    exactAlarm: boolean;
+    notifications: boolean;
+    fullScreenIntent: boolean;
+  }>;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const WEEKDAY_TO_ISO: Record<Weekday, number> = {
+  mon: 1,
+  tue: 2,
+  wed: 3,
+  thu: 4,
+  fri: 5,
+  sat: 6,
+  sun: 7,
+};
+
+function getNative(): AlarmAndroidNativeModule {
+  return requireNativeModule<AlarmAndroidNativeModule>('AlarmAndroid');
+}
+
+export class AndroidScheduler implements AlarmScheduler {
+  async isAvailable(): Promise<boolean> {
+    return true;
+  }
+
+  async requestAuthorization(): Promise<'authorized' | 'denied' | 'notDetermined'> {
+    const result = await getNative().requestPermissions();
+    if (result.exactAlarm && result.notifications && result.fullScreenIntent) {
+      return 'authorized';
+    }
+    return 'denied';
+  }
+
+  async schedule(_alarm: Alarm): Promise<void> {
+    throw new Error('not implemented yet');
+  }
+
+  async cancel(_id: string): Promise<void> {
+    throw new Error('not implemented yet');
+  }
+
+  async listScheduled(): Promise<ScheduledAlarmInfo[]> {
+    return [];
+  }
+}
