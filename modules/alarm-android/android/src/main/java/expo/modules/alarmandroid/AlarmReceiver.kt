@@ -11,6 +11,8 @@ class AlarmReceiver : BroadcastReceiver() {
     val id = intent.getStringExtra(Constants.EXTRA_ALARM_ID) ?: return
     Log.i("AlarmReceiver", "Alarm fired for id=$id")
 
+    scheduleNextIfRepeating(context, id)
+
     val serviceIntent = Intent(context, AlarmService::class.java).apply {
       putExtra(Constants.EXTRA_ALARM_ID, id)
     }
@@ -21,5 +23,15 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     AlarmEvents.flow.tryEmit(AlarmStateEvent(id, "fired"))
+  }
+
+  private fun scheduleNextIfRepeating(context: Context, id: String) {
+    val storage = AlarmStorage(context)
+    val entry = storage.get(id) ?: return
+    if (entry.weekdays.isEmpty()) {
+      storage.remove(id)
+      return
+    }
+    AlarmScheduler(context).schedule(entry)
   }
 }
