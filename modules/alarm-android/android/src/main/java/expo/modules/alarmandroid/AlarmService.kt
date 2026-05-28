@@ -121,14 +121,19 @@ class AlarmService : Service() {
   }
 
   private fun buildNotification(id: String): Notification {
-    val launch = packageManager.getLaunchIntentForPackage(packageName)
+    val entry = AlarmStorage(this).get(id)
+    val activityIntent = Intent(this, AlarmActivity::class.java).apply {
+      flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+      putExtra(Constants.EXTRA_ALARM_ID, id)
+      putExtra("label", entry?.label ?: "アラーム")
+    }
     val fullScreenIntent = PendingIntent.getActivity(
-      this, 0, launch,
+      this, id.hashCode(), activityIntent,
       PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
     return Notification.Builder(this, Constants.NOTIFICATION_CHANNEL_ID)
       .setContentTitle("アラーム")
-      .setContentText(id)
+      .setContentText(entry?.label ?: id)
       .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
       .setCategory(Notification.CATEGORY_ALARM)
       .setOngoing(true)
