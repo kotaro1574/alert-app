@@ -468,12 +468,27 @@ Step 15: マイルストーンコミット + tag                            — 
 Plan 4 以降で必要になりうる項目（Plan 3 では着手しない）：
 
 - **OEM バッテリー最適化対応** (Xiaomi / Samsung / OPPO / Vivo / Huawei): `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` + 端末別 FAQ。spec 9.2 参照
-- **音源選択機能**: `soundId` を両 OS で実装、`raw/` に 3〜5 個 bundle
+- **音源選択機能**: `soundId` を両 OS で実装、`raw/` に 3〜5 個 bundle（現状は alarm.m4a の placeholder 1 個のみ）
 - **音量・バイブ設定画面**: spec 7.1 の設定モーダル
 - **次回アラームまでの残り時間表示**: spec 2.2 で「不要」と確定済みなので扱わない
 - **Maestro E2E スクリプト**: spec 10.4 のシナリオ自動化
 - **CI で Android Build** (GitHub Actions + EAS): Plan 0 のスコープ
 - **TestFlight / Play 内部テスト配布**: ユーザーの ADP 加入待ち（memory: user_ios_beginner）
+
+### Plan 3 で未検証のまま残した E2E 項目（Plan 4 で消化推奨）
+
+- **端末再起動 → BootReceiver 復活**: コードは実装済み（BootReceiver.kt + RECEIVE_BOOT_COMPLETED 宣言）。実機での発火確認は時間がかかるため未実施
+- **権限拒否 → 許可フロー**: PermissionHelper は実装済み。初回起動時の deny → settings 画面で allow → アプリ復帰時の AppState listener 経由再要求のシナリオは実機未検証（アンインストール必要）
+- **曜日繰り返しの実時間検証**: AlarmReceiver の `scheduleNextIfRepeating` ロジックは実装済み。短時間検証ではコード信頼のみで、実際に「翌週同曜日に鳴る」目視検証は未実施
+
+### Plan 3 実装中に必要になった範囲外の fix（既に commit 済み）
+
+- **`react-native-ios-alarmkit` の Android autolinking 除外**: `nitro-modules` の API 変更で Android build 失敗 → `package.json` の `expo.autolinking.android.exclude` で除外
+- **`createScheduler.ts` の lazy require 化**: iOS only の native module が Android 起動時にクラッシュさせるのを回避（両 OS とも lazy）
+- **`@react-native-community/datetimepicker` の Android imperative API 化**: component API は Android で dialog 無限再表示 → `DateTimePickerAndroid.open()` に分岐
+- **`AlarmService` の複数アラーム対応**: 1 個目の MediaPlayer が 2 個目に上書きされて orphan 化 → `Map<id, MediaPlayer>` で全部保持、Stop 1 タップで全部止まる
+- **`AlarmActivity` の `requestDismissKeyguard` 削除**: ロック画面解除認証画面が割り込んで全画面 UI が見えなかった → `setShowWhenLocked` のみで認証不要のロック画面上表示
+- **`AlarmService` に Vibration 追加**: iOS の AlarmKit が自動でやるバイブを Android では自前実装が必要
 
 ---
 
