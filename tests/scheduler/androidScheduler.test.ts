@@ -121,4 +121,31 @@ describe('AndroidScheduler', () => {
       );
     });
   });
+
+  describe('cancel', () => {
+    it('calls Native.cancel with the given id', async () => {
+      mockNative.cancel.mockResolvedValue(undefined);
+      await scheduler.cancel('test-id');
+      expect(mockNative.cancel).toHaveBeenCalledWith('test-id');
+    });
+  });
+
+  describe('listScheduled', () => {
+    it('maps native list entries to scheduled state', async () => {
+      mockNative.list.mockResolvedValue([
+        { id: 'id-1', nextTriggerAt: 1700000000000 },
+        { id: 'id-2', nextTriggerAt: 1700000100000 },
+      ]);
+      const result = await scheduler.listScheduled();
+      expect(result).toEqual([
+        { id: 'id-1', state: 'scheduled' },
+        { id: 'id-2', state: 'scheduled' },
+      ]);
+    });
+
+    it('returns empty array when native returns nothing', async () => {
+      mockNative.list.mockResolvedValue([]);
+      expect(await scheduler.listScheduled()).toEqual([]);
+    });
+  });
 });

@@ -63,11 +63,12 @@ export class AndroidScheduler implements AlarmScheduler {
     );
   }
 
-  async cancel(_id: string): Promise<void> {
-    throw new Error('not implemented yet');
+  async cancel(id: string): Promise<void> {
+    await getNative().cancel(id);
   }
 
   async listScheduled(): Promise<ScheduledAlarmInfo[]> {
-    return [];
+    const entries = await getNative().list();
+    return entries.map((e) => ({ id: e.id, state: 'scheduled' as const }));
   }
 }
