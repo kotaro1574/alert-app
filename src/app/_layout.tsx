@@ -1,10 +1,14 @@
 import '../../global.css';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { AppState } from 'react-native';
+import type { AppStateStatus } from 'react-native';
 import { Stack } from 'expo-router';
 import { createScheduler } from '@/services/createScheduler';
 import { getStore } from '@/stores/appStore';
 
 export default function RootLayout() {
+  const appState = useRef<AppStateStatus>(AppState.currentState);
+
   useEffect(() => {
     async function init() {
       const scheduler = createScheduler();
@@ -13,6 +17,18 @@ export default function RootLayout() {
       await store.getState().loadAlarms();
     }
     init();
+  }, []);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', async (next) => {
+      const wasBackground = appState.current.match(/inactive|background/);
+      appState.current = next;
+      if (wasBackground && next === 'active') {
+        const scheduler = createScheduler();
+        await scheduler.requestAuthorization().catch(() => {});
+      }
+    });
+    return () => sub.remove();
   }, []);
 
   return (
