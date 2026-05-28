@@ -28,5 +28,12 @@ export function createScheduler(): AlarmScheduler {
     };
     return new IosScheduler();
   }
+  if (Platform.OS === 'android') {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { AndroidScheduler } = require('@/scheduler/androidScheduler') as {
+      AndroidScheduler: new () => AlarmScheduler;
+    };
+    return new AndroidScheduler();
+  }
   return new NoopScheduler();
 }
