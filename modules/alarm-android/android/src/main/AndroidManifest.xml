@@ -19,5 +19,13 @@
       android:turnScreenOn="true"
       android:excludeFromRecents="true"
       android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+    <receiver
+      android:name="expo.modules.alarmandroid.BootReceiver"
+      android:exported="true"
+      android:directBootAware="false">
+      <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+      </intent-filter>
+    </receiver>
   </application>
 </manifest>
